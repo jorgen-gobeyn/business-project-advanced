@@ -3,7 +3,7 @@
     <h1>{{ msg }}</h1>
     <button @click="showData">Click Me</button>
     <p></p>
-    <div v-if="parties">{{ parties }}</div>
+    <div v-if="info">{{ info }}</div>
     <option v-if="parties">{{ parties }}</option>
   </div>
 </template>
@@ -22,21 +22,34 @@ export default {
       parties: [],
     };
   },
+  // created() {
+  //   this.$getLocation({})
+  //     .then((location) => {
+  //       console.log(location);//Location van de gebruiker
+  //     })
+  // },
+
   methods: {
     async showData() {
+      this.parties = [];
       let config = {
         headers: {
           'Accept': 'application/json', 'apiKey': key,
         },
       };
-      const res = await axios.get(
+      let res = await axios.get(
         "https://api.sandbox.billit.be/v1/parties",
         config
       );
       for(let i = 0; i < res.data.Items.length; i++) {
         console.log(res.data.Items[i].Name);
-        this.parties.push(res.data.Items[i].Name);//Naam van klant uit de API
+        this.parties.push(res.data.Items[i].Name + " " + res.data.Items[i].Street);//Naam van klant uit de API
       }
+      res = await axios.get(
+        "https://api.sandbox.billit.be/v1/account/accountInformation",
+        config
+      );
+      this.info = res.data.Email;
     },
   },
 };
