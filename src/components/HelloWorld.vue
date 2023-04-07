@@ -15,6 +15,7 @@
           <li v-for="filteredProduct in filteredProducts" :key="filteredProduct.id" @click="setProduct(filteredProduct)">{{ filteredProduct.slice(7) }}</li>
         </ul>
       </div>
+      <p>{{ coords }}</p>
     </div>
   </div>
 </template>
@@ -34,17 +35,31 @@ export default {
       products: [],
       filteredProducts: [],
       modal: false,
+      coords: {
+        lat: 0,
+        lng: 0,
+      },
     };
   },
   async created() {
-  //   this.$getLocation({})
-  //     .then((location) => {
-  //       console.log(location);//Location van de gebruiker
-  //     })
-  await this.getData();
+    this.getLocation();
+    await this.getData();
   },
 
   methods: {
+    getLocation() {
+      const isSupported = 'navigator' in window && 'geolocation' in navigator;
+      if (isSupported) {
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            this.coords.lat = position.coords.latitude;
+            this.coords.lng = position.coords.longitude;
+          }
+        );
+      } else {
+        console.log("Geolocation is not supported by this browser.");
+      }
+    },
     async getData() {
       const config = {
         headers: {
@@ -58,7 +73,8 @@ export default {
       );
       for(let i = 0; i < res.data.Items.length; i++) {
         //Naam en adres van klant uit API
-        let client = res.data.Items[i].ContactFirstName + " " + res.data.Items[i].ContactLastName + ", " + res.data.Items[i].Street + " " + res.data.Items[i].StreetNumber + ", " + res.data.Items[i].Zipcode + " " + res.data.Items[i].City;
+        let client = res.data.Items[i].ContactFirstName + " " + res.data.Items[i].ContactLastName + ", " + res.data.Items[i].Street + " " + 
+                      res.data.Items[i].StreetNumber + ", " + res.data.Items[i].Zipcode + " " + res.data.Items[i].City;
         console.log(client);
         this.parties.push(client);
       }
