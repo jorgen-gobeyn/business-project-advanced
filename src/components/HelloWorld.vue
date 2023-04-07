@@ -36,12 +36,12 @@ export default {
       modal: false,
     };
   },
-  created() {
+  async created() {
   //   this.$getLocation({})
   //     .then((location) => {
   //       console.log(location);//Location van de gebruiker
   //     })
-  this.getData();
+  await this.getData();
   },
 
   methods: {
@@ -62,7 +62,7 @@ export default {
         console.log(client);
         this.parties.push(client);
       }
-      //Producten ophalen
+      //Eerste 120 Producten ophalen
       res = await axios.get(
         "https://api.sandbox.billit.be/v1/products",
         config
@@ -72,7 +72,28 @@ export default {
         console.log(product);
         this.products.push(product);
       }
+      //Volgende 120 Producten ophalen
+      res = await axios.get(
+        "https://api.sandbox.billit.be/v1/products?$skip=120",
+        config
+      );
+      for(let i = 0; i < res.data.Items.length; i++) {
+        let product = res.data.Items[i].ProductID + " " + res.data.Items[i].Reference + " " + res.data.Items[i].Description;
+        console.log(product);
+        this.products.push(product);
+      }
+      //Resterende Producten ophalen
+      res = await axios.get(
+        "https://api.sandbox.billit.be/v1/products?$skip=240",
+        config
+      );
+      for(let i = 0; i < res.data.Items.length; i++) {
+        let product = res.data.Items[i].ProductID + " " + res.data.Items[i].Reference + " " + res.data.Items[i].Description;
+        console.log(product);
+        this.products.push(product);
+      }
     },
+
     filterProducts() {
       this.filteredProducts = this.products.filter(product => {
         return product.toLowerCase().includes(this.product.toLowerCase())
